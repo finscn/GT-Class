@@ -25,7 +25,7 @@ window.GT=window.GT||{};
  *  对象合并方法. 将 对象 po 中的属性加入so中.
  *    如果出现重名的属性,保留so中的原有属性.如果只指定一个参数,则相当于进行一个"单层的浅克隆".
  **/
-GT.merger = function(so, po) {
+GT.merger = GT.merger || function(so, po) {
 		if (arguments.length<2) {
 			po = so;
 			so = {};
