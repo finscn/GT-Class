@@ -86,6 +86,16 @@ var Bar = GT.Class.create( function(args){
 		 }, 
 		 Foo	//父类
 		 );
+		 
+// 以上为 直接创建一个"某父类的子类", 我们也可以先创建好两个类, 然后后期再指定继承关系.
+
+// "子类"必须是通过 GT.Class.create创建的类
+子类.$extend(父类);
+
+// "父类"必须是通过 GT.Class.create创建的类
+父类.$create(子类);
+
+
 [/code]		 
 
 =================
