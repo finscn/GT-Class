@@ -70,11 +70,11 @@ var Bar = GT.Class.create( function(args){
 			}, 
 			method3 : function(a3){ 
 				
-				Bar.$superclass.method2(a3); //调用父类里的其他方法. 
+				Bar.$superclass.method2.apply(this, [a3]); //调用父类里的其他方法. 
 				
 				/* 此处要注意  
-				 Bar.$superclass.method2(a3)
 				 Bar.$superclass.method2.apply(this, [a3])
+				 Bar.$superclass.method2(a3)
 				 this.method2(a3) 
 				 三者的异同
 				*/
