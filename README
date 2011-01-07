@@ -9,7 +9,87 @@
 
 至于是否符合您的需求, 那就不敢保证了, 不过还是希望您可以提出宝贵的建议和意见, 谢谢了 :) .
 
-详细的说明和用法 见  gt-class.js 和 gt-class-example.html 文件的源码.
-源码中有较详细的注释和示例 ( 只有中文 ).
-希望有朋友愿意能帮忙翻译成英文  :) 
+ 
 
+=========================
+
+简单示例:
+
+1 创建类
+
+[code="javascript"]
+//方式1 : 
+var Foo = GT.Class.create( function(args){
+			/* 构造函数 */
+		 },
+		 {
+			classname : 'Foo', //类名,可选,
+			//以下为类的成员
+			att1 : 1 , 
+			att2 : 2 ,
+			method1 : function(){ },
+			method2 : function(){ }
+			
+		 } );
+		 
+//方式2 : 
+var Foo =function(args){
+			/* 构造函数 */
+		 }
+Foo.prototype.att1=1;
+Foo.prototype.method1=function(){ };
+
+GT.Class.create( Foo,
+		
+		//注意:之前Foo.prototype里定义的成员,会被这里定义的"同名成员"覆盖.
+		 {
+			classname : 'Foo', //类名,可选,
+			//以下为类的成员
+			att2 : 2 ,
+			method2 : function(){ }
+			
+		 } );
+[/code]
+	 
+2 继承 :
+
+[code="javascript"]
+var Bar = GT.Class.create( function(args){
+			/* 构造函数 */
+		 },
+		 {
+			classname : 'Foo', //类名,可选,
+			//以下为类的成员
+			att2 : 3 ,
+			
+			// 覆盖了父类里的同名方法 
+			method1 : function(a){ 
+				
+				this.$super(a); //调用父类的同名方法
+				
+			}, 
+			method3 : function(){ 
+				
+				Bar.$superclass.method2(); //调用父类里的其他方法. 
+				//此处要注意  Bar.$superclass.method2() 和 this.method2() 的异同
+				
+			}
+			
+		 }, 
+		 Foo	//父类
+		 );
+
+//如果子类没什么要做的, 可以直接
+
+var Bar = GT.Class.create( function(args){
+			/* 构造函数 */
+		 }, 
+		 Foo	//父类
+		 );
+[/code]		 
+
+=================
+
+更多详细的说明和用法 见  gt-class.js 和 gt-class-example.html 文件的源码.
+源码中有较详细的注释和示例 ( 只有中文 ).
+希望有朋友愿意能帮忙翻译成英文  :)
