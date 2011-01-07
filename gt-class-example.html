@@ -1,0 +1,163 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+
+
+<title> GT-Class Example & Test </title>
+
+<script type="text/javascript" src="./gt-class.js"></script>
+
+<script type="text/javascript">
+
+//创建一个父类 :  GT.Class.create( 类构造函数, 类成员)
+	var Animal =GT.Class.create( function(attributes){
+			this.attributes=attributes||{};
+		 },
+		 {
+			classname : 'Animal',
+			getAttributes : function(){
+				return this.attributes ;
+			},
+			
+			getName : function(){
+				return this.getAttributes().name;
+			},
+			
+			getType : function(){
+				return this.getAttributes().type;
+			},
+			
+			//声明一个抽象接口, 子类必须实现它,否则不能通过 GT.Class.isAbstract 的检测.
+			getInfo : GT.Class.$abstract 
+			
+		 } );
+	 
+	 
+ 
+//创建一个子类 :  GT.Class.create( 子类构造函数, 子类成员, 父类)
+	var Cat=GT.Class.create( function(attributes){
+			//this.$super() 调用父类中的同名方法 (此处为 父类的构造函数)
+			this.$super(attributes) ;
+			this.attributes.type='cat';
+		 },
+		 {
+		 	classname : 'Cat',
+			
+			getName : function(){
+				//this.$super() 调用父类中的同名方法 (此处为 父类的getName方法, 方法中的"this"为当前对象)
+				return "["+ this.$super()+"]";	
+			},
+			
+			getMyInfo : function(){
+				
+				// 子类没有覆盖父类的getType方法, 所以this.getType()调用的就是父类中的实现,方法中的"this"为当前对象.
+				var type = this.getType(); 
+	
+				return "This is a/an "+type+", named "+this.getName()+" .";
+			}
+			
+		 }, Animal);	
+
+//创建一个子类的子类
+	var Tiger=GT.Class.create( function(attributes){
+			this.$super(attributes) ;
+			this.attributes.type='tiger';
+		 },
+		 {
+		 	classname : 'Tiger',
+		 	
+		 	getInfo : function(){
+		 					
+				// 显式的调用Cat父类里的getMyInfo方法,同时利用apply将方法中的"this"替换为当前对象.			
+	
+		 		return Tiger.$superclass.getMyInfo.apply(this);
+		 	}
+			
+		 }, Cat);	
+	
+	var cat1 = new Cat( { name : 'Tom' } );
+	
+	var tiger1 = new Tiger( { name : 'Jack' } );
+
+
+//将一个已经存在的函数 "加工"成一个类.
+	function MyFun(attributes){
+		this.attributes=attributes||{};
+	}
+	MyFun.prototype.getType = function(){
+		 		return this.classname;
+	}
+	GT.Class.create( MyFun, {
+		
+		 	classname : 'MyFun',
+	
+		 	getInfo : function(){
+		 		return MyFun.$superclass.getMyInfo.apply(this);
+		 	}
+			
+		 }, Cat);
+		 
+	var fun1=new MyFun({name : 'fun1'});	 
+	 
+// GT.Class.create 中的第二个参数"类成员"是可选的.省略后 GT.Class.create( 子类构造函数, 父类)
+	var MyClass = GT.Class.create( function(attributes){
+				this.$super(attributes) ;
+				this.classname='MyClass';
+			}, MyFun);
+	
+	var class1=new MyClass({name : 'class1'});	 
+	 
+
+
+	 
+function init(){
+
+	//简单测试
+	var msg=[
+		GT.Class.isAbstract( Cat ),	// ==> true
+		GT.Class.isAbstract( Tiger ) === false ,	// ==> true
+		"========",
+		cat1.getInfo(),						//  ==> "< This is an abstract method >"
+		cat1.getMyInfo(),					// ==> "This is a/an cat, named [Tom]"
+		cat1 instanceof GT.Class ,			// ==> true
+		cat1 instanceof Cat ,				// ==> true
+		(cat1 instanceof Tiger)  === false  ,		// ==> true
+		"========",
+		tiger1.getInfo(),					// ==> "This is a/an tiger, named [Jack]"
+		tiger1 instanceof GT.Class ,		// ==> true
+		tiger1 instanceof Cat ,				// ==> true
+		tiger1 instanceof Tiger	,			// ==> true
+		"========",
+		fun1.getInfo(),						// ==> "This is a/an tiger, named [Jack]"
+		fun1 instanceof GT.Class ,			// ==> true
+		fun1 instanceof Cat ,				// ==> true
+		fun1 instanceof MyFun,				// ==> true
+		"========",
+		class1.getInfo(),					// ==> "This is a/an tiger, named [Jack]"
+		class1 instanceof GT.Class ,		// ==> true
+		class1 instanceof Cat ,				// ==> true
+		class1 instanceof MyFun,			// ==> true
+		class1 instanceof MyClass			// ==> true
+	]
+	
+	var rs=msg.join('\n');
+	document.getElementById('test_rs').value = rs;
+	
+	if (rs.indexOf('false')!=-1){
+		alert('Failed !!!')
+	}
+}
+
+
+
+</script>
+
+
+</head> 
+<body onload="init()"  > 
+<textarea id='test_rs' style="width:600px;height:480px;">
+</textarea>
+
+
+</body> 
+</html>
