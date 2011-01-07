@@ -23,7 +23,7 @@ var Foo = GT.Class.create( function(args){
 			/* 构造函数 */
 		 },
 		 {
-			classname : 'Foo', //类名,可选,
+			classname : 'Foo', //类名,可选. 设置后,可通过 GT.Class.forName(classname) 得到类.
 			//以下为类的成员
 			att1 : 1 , 
 			att2 : 2 ,
@@ -58,7 +58,7 @@ var Bar = GT.Class.create( function(args){
 			/* 构造函数 */
 		 },
 		 {
-			classname : 'Foo', //类名,可选,
+			classname : 'Bar', //类名,可选,
 			//以下为类的成员
 			att2 : 3 ,
 			
@@ -68,11 +68,16 @@ var Bar = GT.Class.create( function(args){
 				this.$super(a); //调用父类的同名方法
 				
 			}, 
-			method3 : function(){ 
+			method3 : function(a3){ 
 				
-				Bar.$superclass.method2(); //调用父类里的其他方法. 
-				//此处要注意  Bar.$superclass.method2() 和 this.method2() 的异同
+				Bar.$superclass.method2(a3); //调用父类里的其他方法. 
 				
+				/* 此处要注意  
+				 Bar.$superclass.method2(a3)
+				 Bar.$superclass.method2.apply(this, [a3])
+				 this.method2(a3) 
+				 三者的异同
+				*/
 			}
 			
 		 }, 
