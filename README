@@ -93,3 +93,4 @@ var Bar = GT.Class.create( function(args){
 更多详细的说明和用法 见  gt-class.js 和 gt-class-example.html 文件的源码.
 源码中有较详细的注释和示例 ( 只有中文 ).
 希望有朋友愿意能帮忙翻译成英文  :)
+
