@@ -12,6 +12,7 @@
 //创建一个父类 :  GT.Class.create( 类构造函数, 类成员)
 	var Animal =GT.Class.create( function(attributes){
 			this.attributes=attributes||{};
+			this.test='111';
 		 },
 		 {
 			classname : 'Animal',
@@ -31,8 +32,43 @@
 			getInfo : GT.Class.$abstract 
 			
 		 } );
+
+var Animal2 = GT.Class.create(function(cfg){
+	this.$super(cfg);
+},{
+	classname : 'Animal2',
+	getName : function(){
+		return this.name;
+	}
+},Animal)
 	 
-	 
+var Animal3 = new GT.Class.create({
+	classname : 'Animal3',
+	getName : function(){
+		return this.name;
+	},
+	setName : function(name){
+		this.name=name;
+	}
+},Animal2)	 
+
+function createAnim(){
+	var cfg={
+		classname : 'Animal3',
+		type : 'animal',
+		name : 'haha'
+	}
+	return cfg;
+}
+
+var a3_1=GT.Class.newInstance( createAnim() );
+var a3_2=GT.Class.newInstance( createAnim() );
+var a3_3=GT.Class.newInstance( createAnim() );
+var a3_4=GT.Class.newInstance( createAnim() );
+var a3_5=GT.Class.newInstance( createAnim() );
+
+//alert(a3_4.test);
+
  
 //创建一个子类 :  GT.Class.create( 子类构造函数, 子类成员, 父类)
 	var Cat=GT.Class.create( function(attributes){

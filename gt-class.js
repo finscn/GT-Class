@@ -18,14 +18,15 @@
  **************************/
 
 
-window.GT=window.GT||{};
+(function(host){
 
+	var GT=host.GT=host.GT||{};
 
-/***
- *  对象合并方法. 将 对象 po 中的属性加入so中.
- *    如果出现重名的属性,保留so中的原有属性.如果只指定一个参数,则相当于进行一个"单层的浅克隆".
- **/
-GT.merger = GT.merger || function(so, po) {
+	/***
+	 *  对象合并方法. 将 对象 po 中的属性加入so中.
+	 *    如果出现重名的属性,保留so中的原有属性.如果只指定一个参数,则相当于进行一个"单层的浅克隆".
+	 **/
+	GT.merger=GT.merger||function( so, po) {
 		if (arguments.length<2) {
 			po = so;
 			so = {};
@@ -36,8 +37,7 @@ GT.merger = GT.merger || function(so, po) {
 			}
 		}
 		return so;
-	};
-
+	}
 
 /* 定义常量. */
 GT.CONST = GT.merger({
@@ -90,7 +90,7 @@ GT.merger(GT.Class ,{
 	__usedSuper__ : (function(){
 			var probe_super = (function(){$super();}).toString().indexOf('$super') > 0;
 			return function(obj) {
-				return !probe_super || obj.toString().indexOf('.$super(')>0;
+				return !probe_super || obj.toString().indexOf('.$super')>0;
 			}
 		})(),
 	
@@ -107,8 +107,8 @@ GT.merger(GT.Class ,{
 	 *  
 	 **/
 	create : function(constructor, prototype, superclass) {
-		
-		var C= GT.Class.getConst();
+		var K = GT.Class;
+		var C = K.getConst();
 
 		if ( typeof prototype =='function' ) {
 			var _tmp=superclass;
@@ -122,12 +122,12 @@ GT.merger(GT.Class ,{
 		}
 		
 		prototype = prototype || {};
-		superclass = superclass|| prototype[C.superclass] || GT.Class;
-		constructor = constructor ||function() { 
+		superclass = superclass|| prototype[C.superclass] || K;
+		constructor = constructor ||function(args) {
 					this.$super.apply(this,arguments);
 				}
 
-		return GT.Class.__create__(constructor, superclass, prototype);
+		return K.__create__(constructor, superclass, prototype);
 
 	},
 	
@@ -144,9 +144,9 @@ GT.merger(GT.Class ,{
 	 *
 	 **/
 	__create__ : function(sb,sp, orp) {
+		var K = GT.Class;
+		var C = K.getConst();
 		
-		var C= GT.Class.getConst();
-
 		var spp = sp.prototype,
 			sbp = null ,
 			osbp= sb.prototype, /* 保留子类的原始prototype */
@@ -169,7 +169,7 @@ GT.merger(GT.Class ,{
 		for ( var p in orp) {
 			var v=orp[p];
 			//如果某方法的代码中出现了$super, 则在该方法上保留父类中的同名方法的引用,供"this.$super(...)"使用.
-			if (this.supportSuper &&  typeof v =='function' && this.__usedSuper__(v)){
+			if (K.supportSuper &&  typeof v =='function' && K.__usedSuper__(v)){
 				v[C.__$super__]=sbp[p];
 			}
 
@@ -189,10 +189,16 @@ GT.merger(GT.Class ,{
 		if (this.supportSuper){
 			sb[C.__$super__]=sp;
 			// 在子类的某方法中, 通过 this.$super(...) 来调用父类中的同名方法
-			sbp.$super = (function(){
-				var m=arguments.callee.caller[ GT.Class.getConst().__$super__ ];
-				return m.apply(this,arguments);
-			});
+			sbp.$super = (function(_sbp){
+				return function(){
+					var m=arguments.callee.caller[ GT.Class.getConst().__$super__ ];
+					if (m){
+						return m.apply(this,arguments);
+					}else{
+						// $log([ _sbp[C.classname],this.id, _sbp.constructor].join('\n'));
+					}
+				}
+			})(sbp);
 		}
 
 
@@ -207,7 +213,7 @@ GT.merger(GT.Class ,{
 
 		//可选. 注册创建的类. 需要保留类注册功能,且指定classname.
 		sb[C.classname]= sb[C.classname]||sbp[C.classname];
-		if (sb[C.classname] && this.register) {
+		if (sb[C.classname] && K.register) {
 			this.register(sb[C.classname], sb);
 		}
 				
@@ -216,14 +222,15 @@ GT.merger(GT.Class ,{
 
 	/* 辅助方法, 用来检测某类是否是抽象类. (原型中是否有"未实现的抽象方法"). 目前实际用途不大. */
 	isAbstract : function(sb, throwErr){
+		var K = GT.Class;
+		var C = K.getConst();
 
-		var C= GT.Class.getConst();
 		var sbp=sb.prototype;
 		
 		var notImplements=[];
 		for (var p in sbp){
 			var v=sbp[p];						
-			if (v===GT.Class.$abstract){
+			if (v===K.$abstract){
 				notImplements.push(p);
 			}
 		}
@@ -274,7 +281,8 @@ GT.merger(GT.Class ,{
 	/* 根据参数和类名来创建类的实例 */
 	/* 为某私有框架提供的专有方法,请无视吧. */
 	newInstance : function(cfg, classname) {
-		var C= GT.Class.getConst();
+		var K = GT.Class;
+		var C = K.getConst();
 
 		if (cfg && cfg.constructor == Object.prototype.constructor) {
 			classname = classname || cfg[C.classname];
@@ -289,6 +297,7 @@ GT.merger(GT.Class ,{
 
 
 
-GT.$class = function(constructor, prototype, superclass) {
-	return new GT.Class.create(constructor, prototype, superclass);
-};
+GT.$class=GT.Class.create;
+
+
+})(this);
