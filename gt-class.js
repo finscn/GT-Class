@@ -1,6 +1,6 @@
 /**************************
  *
- * GT-Class 1.0 beta 1 
+ * GT-Class 1.0
  *
  *    GT-Class is a Classes-Framework for Javascript. 
  *
@@ -18,7 +18,7 @@
  **************************/
 
 
-(function(host){
+;(function(host){
 
 	var GT=host.GT=host.GT||{};
 
@@ -26,25 +26,25 @@
 	 *  对象合并方法. 将 对象 po 中的属性加入so中.
 	 *    如果出现重名的属性,保留so中的原有属性.如果只指定一个参数,则相当于进行一个"单层的浅克隆".
 	 **/
-	GT.merger=GT.merger||function( so, po) {
-		if (arguments.length<2) {
+	GT.merger = function(so, po,override) {
+		if (arguments.length<2 || po=== undefined ) {
 			po = so;
 			so = {};
 		}
 		for ( var key in po) {
-			if (!(key in so) ) {
+			if ( !(key in so) || override ) {
 				so[key] = po[key];
 			}
 		}
 		return so;
-	}
+	};
 
 /* 定义常量. */
 GT.CONST = GT.merger({
-				'classname' : 'classname',
-				'superclass' : 'superclass',
-				'$superclass' : '$superclass',
-				'__$super__' : '__$super__'
+				"classname" : "classname",
+				"superclass" : "superclass",
+				"$superclass" : "$superclass",
+				"__$super__" : "__$super__"
 			},GT.CONST);
 
 
@@ -88,9 +88,9 @@ GT.merger(GT.Class ,{
 	 * 
 	 **/
 	__usedSuper__ : (function(){
-			var probe_super = (function(){$super();}).toString().indexOf('$super') > 0;
+			var probe_super = (function(){$super();}).toString().indexOf("$super") > 0;
 			return function(obj) {
-				return !probe_super || obj.toString().indexOf('.$super')>0;
+				return !probe_super || obj.toString().indexOf(".$super")>0;
 			}
 		})(),
 	
@@ -110,21 +110,22 @@ GT.merger(GT.Class ,{
 		var K = GT.Class;
 		var C = K.getConst();
 
-		if ( typeof prototype =='function' ) {
+		if ( typeof prototype =="function" ) {
 			var _tmp=superclass;
 			superclass = prototype;
 			prototype = _tmp;
 		}
 
-		if (typeof constructor !='function') {
+		if (typeof constructor !="function") {
 			prototype = constructor;
 			constructor=null;
 		}
 		
 		prototype = prototype || {};
 		superclass = superclass|| prototype[C.superclass] || K;
-		constructor = constructor ||function(args) {
-					this.$super.apply(this,arguments);
+		constructor = constructor ||function(a1,a2,a3,a4,a5,a6,a7,a8,a9) {
+					//this.$super.apply(this,arguments);
+					this.$super(a1,a2,a3,a4,a5,a6,a7,a8,a9);
 				}
 
 		return K.__create__(constructor, superclass, prototype);
@@ -149,8 +150,10 @@ GT.merger(GT.Class ,{
 		
 		var spp = sp.prototype,
 			sbp = null ,
-			osbp= sb.prototype, /* 保留子类的原始prototype */
 			orp = orp || {} ;
+		
+		/* 保留子类的原始prototype */
+		var osbp= sb.prototype;
 
 		// 先让子类的prototype变成父类的prototype.
 		//   注意,这里不能直接让 sb.prototype = spp,要将子类和父类的prototype隔离.
@@ -165,11 +168,10 @@ GT.merger(GT.Class ,{
 			}
 		}
 
-		
 		for ( var p in orp) {
 			var v=orp[p];
 			//如果某方法的代码中出现了$super, 则在该方法上保留父类中的同名方法的引用,供"this.$super(...)"使用.
-			if (K.supportSuper &&  typeof v =='function' && K.__usedSuper__(v)){
+			if (K.supportSuper &&  typeof v =="function" && K.__usedSuper__(v)){
 				v[C.__$super__]=sbp[p];
 			}
 
@@ -195,7 +197,7 @@ GT.merger(GT.Class ,{
 					if (m){
 						return m.apply(this,arguments);
 					}else{
-						// $log([ _sbp[C.classname],this.id, _sbp.constructor].join('\n'));
+						// $log([ _sbp[C.classname],this.id, _sbp.constructor].join("\n"));
 					}
 				}
 			})(sbp);
@@ -286,7 +288,7 @@ GT.merger(GT.Class ,{
 
 		if (cfg && cfg.constructor == Object.prototype.constructor) {
 			classname = classname || cfg[C.classname];
-			var c = this.forName(classname);
+			var c = K.forName(classname);
 			if (c) {
 				return new c(cfg);
 			}
@@ -296,8 +298,9 @@ GT.merger(GT.Class ,{
 });
 
 
-
-GT.$class=GT.Class.create;
+GT.$class = GT.Class.create;
+GT.$instance = GT.Class.newInstance;
 
 
 })(this);
+
